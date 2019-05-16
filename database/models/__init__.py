@@ -2,6 +2,7 @@ from database.models.benign import Benign
 from database.models.bitdefender import BitDefender
 from database.models.kaspersky import Kaspersky
 from database.models.kisa import Kisa
+from database.models.query import Query
 from database.models.rawfile import RawFile
 from database.models.user import User
 from database.models.symantec import Symantec

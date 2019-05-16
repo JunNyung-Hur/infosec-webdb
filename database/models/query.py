@@ -12,8 +12,9 @@ class Query(Base):
     user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
     status = Column(Integer, nullable=True)
     result_path = Column(String(1024), nullable=False)
-    created_at = Column(DateTime, server_default=datetime.datetime.now())
-    updated_at = Column(DateTime, server_default=datetime.datetime.now(), server_onupdate=datetime.datetime.now())
+    created_at = Column(DateTime, server_default=datetime.datetime.now().strftime("%Y-%m-%d"))
+    updated_at = Column(DateTime, server_default=datetime.datetime.now().strftime("%Y-%m-%d"),
+                        server_onupdate=datetime.datetime.now().strftime("%Y-%m-%d"))
 
     def __init__(self, user_id, status, result_path):
         self.user_id = user_id

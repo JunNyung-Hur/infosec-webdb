@@ -15,4 +15,4 @@ if __name__ == 'celery_package':
     sys.path.append(os.path.abspath(os.path.dirname(__file__)))
     os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1')
     celery = make_celery()
-    celery.autodiscover_tasks(['celery_package.views'])
+    celery.autodiscover_tasks(['celery_package.tasks'], force=True)
