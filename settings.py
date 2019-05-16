@@ -37,3 +37,12 @@ DB_ID = config.get('DATABASE', 'ID')
 DB_PASSWORD = config.get('DATABASE', 'PASSWORD')
 DB_NAME = config.get('DATABASE', 'DB_NAME')
 DB_URI = 'mysql://'+DB_ID+":"+DB_PASSWORD+"@"+DB_HOST+'/'+DB_NAME
+
+'''
+    Celery Variable
+'''
+BROKER_HOST = config.get('CELERY', 'BROKER_HOST')
+BROKER_PORT = config.get('CELERY', 'BROKER_PORT')
+CELERY_BROKER_URL = 'redis://'+BROKER_HOST+':'+BROKER_PORT
+CELERY_RESULT_BACKEND = 'db+mysql://'+DB_ID+':'+DB_PASSWORD+'@'+DB_HOST+'/'+DB_NAME
+

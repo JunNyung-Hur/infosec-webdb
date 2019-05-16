@@ -36,22 +36,22 @@
                 </div>
             </div>
             <div>
-                <label>라벨 선택</label>
+                <label>백신 회사 선택</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="label-radio" id="kaspersky" value="kaspersky" checked/>
+                <input class="form-check-input" type="radio" name="label-company" id="kaspersky" value="kaspersky" checked/>
                 <label class="form-check-label" for="kaspersky">카스퍼스키</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="label-radio" id="bitdefender" value="bitdefender" />
+                <input class="form-check-input" type="radio" name="label-company" id="bitdefender" value="bitdefender" />
                 <label class="form-check-label" for="bitdefender">BitDefender</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="label-radio" id="symantec" value="symantec" />
+                <input class="form-check-input" type="radio" name="label-company" id="symantec" value="symantec" />
                 <label class="form-check-label" for="symantec">시만텍</label>
             </div>
             <div class="form-check form-check-inline mb-4">
-                <input class="form-check-input" type="radio" name="label-radio" id="all-benign" value="all-benign" />
+                <input class="form-check-input" type="radio" name="label-company" id="all-benign" value="all-benign" />
                 <label class="form-check-label" for="all-benign">모두 정상</label>
             </div>
             <div class="form-group">
@@ -95,7 +95,7 @@
             uiLibrary: 'bootstrap4',
             format: 'yyyy-mm-dd'
         });
-        $('input[name=label-radio]').click(function(){
+        $('input[name=label-company]').click(function(){
             var radioValue = $(this).val();
             if(radioValue == 'all-benign'){
                 $('#label').prop("disabled", true);
@@ -140,7 +140,7 @@
             if($('#start-collected').val() == '' || $('#end-collected').val() == ''){
                 return false;
             }
-            if(!$('input:radio[name=label-radio]').is(':checked')){
+            if(!$('input:radio[name=label-company]').is(':checked')){
                 return false;
             }
             if($('#limit').val() == ''){
@@ -154,7 +154,7 @@
 
         $('#search').click(function(){
             $.ajax({
-                url:'/RawFiles/search',
+                url:'/search',
                 type:'post',
                 data:$('#search-form').serialize(),
                 beforeSend: function(xhr,opts){
