@@ -20,5 +20,5 @@ def search():
     label = request.form.get('label')
     limit = request.form.get('limit')
 
-    search_task.delay(channel_list, start_date, end_date, label_company, label, limit, current_user.id)
+    search_task(channel_list, start_date, end_date, label_company, label, limit, current_user.id)
     return Response('', status=200)

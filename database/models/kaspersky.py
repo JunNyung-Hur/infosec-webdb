@@ -9,6 +9,7 @@ class Kaspersky(Base):
 
     id = Column(Integer, primary_key=True)
     raw_file_md5 = Column(String(128), ForeignKey('RawFile.md5'), nullable=False, unique=True)
+    label = Column(String(64), nullable=False)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
     raw_file = relationship('RawFile', back_populates='kaspersky_label')
@@ -18,4 +19,4 @@ class Kaspersky(Base):
         self.created_at = created_at
 
     def __repr__(self):
-        return "<"+table_name+"('%s', '%s', '%s', '%s')>" % (self.id, self.raw_file_md5, self.created_at, self.updated_at)
+        return "<"+table_name+"('%s', '%s', '%s','%s', '%s')>" % (self.id, self.raw_file_md5, self.label, self.created_at, self.updated_at)
