@@ -1,0 +1,11 @@
+venv/
+
+.DS_Store
+.idea/
+__pycache__/
+
+config/*
+!config/config.defaults.ini
+
+dummy.py
+test.py

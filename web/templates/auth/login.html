@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sign In</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap-4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/static/my-theme/css/signin.css" rel="stylesheet">
+  </head>
+  <body class="text-center">
+    <form class="form-signin">
+      <img class="mb-4" src="/static/my-theme/img/bootstrap-solid.svg" alt="" width="72" height="72">
+      <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+      <label for="inputID" class="sr-only">ID</label>
+      <input type="text" id="inputID" name="username" class="form-control" placeholder="ID" required autofocus autocomplete="off">
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
+      <label class="failed-login invisible">로그인에 실패하였습니다.</label>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="button" id="btn-submit">Sign in</button>
+      <p class="mt-5 mb-3 text-muted">&copy; 2017-2019</p>
+    </form>
+    <script src="/static/jquery/jquery.js"></script>
+    <script src="/static/bootstrap-4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      function checkForm(){
+        if ($('#inputID').val()==''){
+          return false;
+        }
+        if ($('#inputPassword').val()==''){
+          return false;
+        }
+        return true;
+      }
+      $('#btn-submit').click(function(){
+        var formData = $('.form-signin').serialize();
+        $.ajax({
+          url: '/auth/login',
+          type: 'POST',
+          data: formData,
+          contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+          beforeSend: function(xhr){
+            if(!checkForm()){
+              $('.failed-login').removeClass('invisible');
+              xhr.abort();
+            }
+          },
+          success: function (res) {
+            location.href=res
+          },
+          error: function(res){
+            $('.failed-login').removeClass('invisible');
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
