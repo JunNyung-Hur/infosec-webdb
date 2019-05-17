@@ -70,17 +70,13 @@
         </form>
     </div>
     <div class="col-md-5 d-flex flex-column p-4 border">
-        <h4 class="mb-4">검색 결과</h4>
+        <h4 class="mb-4">최근 검색 결과 (최대 10건)</h4>
         <div class="border result-preview-wrapper mb-2 p-3">
-            <ul class="result-preview"></ul>
-        </div>
-        <div class="row mx-0">
-            <div class="col-md-6 px-0">
-                <label class="float-left" id="total-count"></label>
+            <div class="row mx-0 mb-2">
+                <div class="col px-4">검색시간</div>
+                <div class="col"><span class="float-right">상태</span></div>
             </div>
-            <div class="col-md-6 px-0">
-                <button class="btn btn-danger float-right" id="btn-download">검색 결과 다운로드</button>
-            </div>
+            <ul class="query_list"></ul>
         </div>
     </div>
 </div>
@@ -152,6 +148,34 @@
             return true;
         }
 
+        function loadQueries(){
+            $.ajax({
+                url:'/queries',
+                type:'get',
+                success: function(data){
+                    var res = $.parseJSON(data);
+                    $('.query_list').children().remove()
+                    res.forEach(function(item, index, array){
+                        list_element = '<li class="mb-2"><div class="row mx-0 clearfix align-items-center">';
+                        list_element += '<div class="col">'+item.query_created_at+'</div>'
+                        if(item.query_status == '0'){
+                            list_element += '<div class="col"><div class="spinner-border text-primary float-right" role="status">\
+                            </div><span class="float-right mr-3">검색 중</span></div>'
+                        }
+                        else if(item.query_status == '1'){
+                            list_element += '<div class="col"><i class="fas fa-check text-success fa-2x float-right"></i>'
+                            list_element += '<button class="btn btn-primary btn-sm float-right mr-2">다운로드</button></div>'
+                        }
+                        else if(item.query_status == '2'){
+                            list_element += '<span class="col"><i class="fas fa-exclamation-circle text-danger fa-2x float-right"></i></span>'
+                        }
+                        list_element += '</div></li>';
+                        $('.query_list').append(list_element)
+                    })
+                }
+            })
+        }
+
         $('#search').click(function(){
             $.ajax({
                 url:'/search',
@@ -163,19 +187,21 @@
                         xhr.abort();
                     }
                 },
-                success: function(data){
-                    var res = $.parseJSON(data);
-                    alert(res);
-                    var totalCount = res.totalCount
-                    $('#total-count').html('파일 개수 : '+totalCount);
-                    $('.result-preview').children().remove()
-                    res.resultPreview.forEach(function(item, index, array){
-                        $('.result-preview').append('<li>'+item+'</li>')
-                    })
-                    $('#btn-download').removeClass('invisible')
+                error: function(res){
+                    if(res.responseText == 'last query is running'){
+                        alert('이전 쿼리가 아직 진행중입니다');
+                    }
+                },
+                success: function(msg){
+                    if(msg == 'ok'){
+                        loadQueries();
+                    }
                 }
             })
         })
+
+        loadQueries();
+
      });
 </script>
 

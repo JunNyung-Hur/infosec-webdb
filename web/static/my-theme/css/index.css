@@ -1,0 +1,19 @@
+.result-preview-wrapper{
+    flex: 1 1 auto;
+}
+
+.result-preview-wrapper li{
+    font-size: 0.875em;
+}
+.result-preview-wrapper .col{
+    padding: 0;
+}
+.result-preview-wrapper li .btn{
+    font-size: 0.875em;
+    padding: .05rem .5rem;
+}
+
+.result-preview-wrapper li i{
+    font-size: 1.4rem;
+}
+
