@@ -46,3 +46,7 @@ BROKER_PORT = config.get('CELERY', 'BROKER_PORT')
 CELERY_BROKER_URL = 'redis://'+BROKER_HOST+':'+BROKER_PORT
 CELERY_RESULT_BACKEND = 'db+mysql://'+DB_ID+':'+DB_PASSWORD+'@'+DB_HOST+'/'+DB_NAME
 
+'''
+    Etc Variable
+'''
+QUERY_RESULT_PATH = os.path.join(BASE_DIR, 'query')

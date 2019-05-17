@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import desc
 from database import session
 from database.models import Query
-import json
+import json, datetime
 
 index_blueprint = Blueprint('index', __name__)
 
@@ -27,7 +27,7 @@ def search():
     label_company = request.form.get('label-company')
     label = request.form.get('label')
     limit = request.form.get('limit')
-
+    result_path = str(user_id)+'_'+str(int(datetime.datetime.now().timestamp()))+'.txt'
     user_queries = session.query(Query).filter(Query.user_id == user_id).order_by(Query.created_at).all()
     while len(user_queries) > 9:
         session.delete(user_queries[0])
@@ -35,7 +35,7 @@ def search():
     session.commit()
 
     from celery_package.tasks import search_task
-    search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id)
+    search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id, result_path=result_path)
     return Response('ok', status=200)
 
 

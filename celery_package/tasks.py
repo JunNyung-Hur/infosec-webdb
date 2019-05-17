@@ -12,7 +12,8 @@ class QueryTask(Task):
                     link=None, link_error=None, shadow=None, **options):
         _session = session
         _user_id = kwargs['user_id']
-        _query = Query(_user_id, 0, 'test')
+        _result_path = kwargs['result_path']
+        _query = Query(_user_id, 0, _result_path)
         _session.add(_query)
         _session.commit()
 
@@ -36,7 +37,8 @@ class QueryTask(Task):
 
 
 @celery.task(base=QueryTask)
-def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id):
+def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, result_path):
+    import settings, os
     channel_class_list = list()
     for channel in channel_list:
         if channel == 'virussign':
@@ -68,6 +70,19 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     if not label_company == Benign:
         query = query.filter(label_company.label.contains(label))
     query = query.limit(limit)
-    print(query.all())
+    query_results = query.all()
+
+    path_list = list()
+    for query_result in query_results:
+        path_list.append(query_result[0])
+
+    write_str = str()
+    for path in path_list[:-1]:
+        write_str += path+'\n'
+    write_str += path_list[-1]
+
+    with open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w') as f:
+        f.write(write_str)
+
     return True
 
