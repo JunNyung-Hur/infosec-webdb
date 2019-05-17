@@ -77,9 +77,10 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
         path_list.append(query_result[0])
 
     write_str = str()
-    for path in path_list[:-1]:
-        write_str += path+'\n'
-    write_str += path_list[-1]
+    if len(path_list):
+        for path in path_list[:-1]:
+            write_str += path+'\n'
+        write_str += path_list[-1]
 
     with open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w') as f:
         f.write(write_str)
