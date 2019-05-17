@@ -5,6 +5,7 @@ from database import session
 from sqlalchemy import or_, desc
 import datetime
 
+
 class QueryTask(Task):
 
     def apply_async(self, args=None, kwargs=None, task_id=None, producer=None,
@@ -32,7 +33,6 @@ class QueryTask(Task):
         _query = session.query(Query).filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
         _query.status = 1
         _session.commit()
-
 
 
 @celery.task(base=QueryTask)

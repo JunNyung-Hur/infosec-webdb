@@ -165,6 +165,7 @@
                 },
                 success: function(data){
                     var res = $.parseJSON(data);
+                    alert(res);
                     var totalCount = res.totalCount
                     $('#total-count').html('파일 개수 : '+totalCount);
                     $('.result-preview').children().remove()
