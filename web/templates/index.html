@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <script src="/static/datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 <link href="/static/datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
 <link href="/static/my-theme/css/index.css" rel="stylesheet" type="text/css" />
 <div class="row" style="margin-top:80px;">
@@ -177,27 +178,40 @@
         }
 
         $('#search').click(function(){
-            $.ajax({
-                url:'/search',
-                type:'post',
-                data:$('#search-form').serialize(),
-                beforeSend: function(xhr,opts){
-                    if(!checkForm()){
-                        alert('빈 칸을 채워주세요');
-                        xhr.abort();
+            if(!checkForm()){
+                alert('빈 칸을 채워주세요');
+                return
+            }
+            // Setup socketio functions
+            var namespace = '/socket/queries'; // change to an empty string to use the global namespace
+            // the socket.io documentation recommends sending an explicit package upon connection
+            // this is specially important when using the global namespace
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            socket.on('response', function() {
+                alert('test1!');
+            });
+            // event handler for userid.  On initial connection, the server
+            // sends back a unique userid
+            socket.on('ready', function(msg) {
+                alert('준비');
+                $.ajax({
+                    url:'/search',
+                    type:'post',
+                    data:$('#search-form').serialize(),
+                    beforeSend: function(xhr,opts){
+                    },
+                    error: function(res){
+                        if(res.responseText == 'last query is running'){
+                            alert('이전 쿼리가 아직 진행중입니다');
+                        }
+                    },
+                    success: function(msg){
+                        if(msg == 'ok'){
+                            loadQueries();
+                        }
                     }
-                },
-                error: function(res){
-                    if(res.responseText == 'last query is running'){
-                        alert('이전 쿼리가 아직 진행중입니다');
-                    }
-                },
-                success: function(msg){
-                    if(msg == 'ok'){
-                        loadQueries();
-                    }
-                }
-            })
+                })
+            });
         })
 
         loadQueries();

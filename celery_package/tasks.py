@@ -3,7 +3,8 @@ from celery_package import celery
 from database.models import Virussign, Virusshare, Kisa, Kaspersky, BitDefender, Symantec, Benign, RawFile, Query
 from database import session
 from sqlalchemy import or_, desc
-import datetime
+from flask_socketio import SocketIO
+import datetime, requests, json
 
 
 class QueryTask(Task):
@@ -37,7 +38,7 @@ class QueryTask(Task):
 
 
 @celery.task(base=QueryTask)
-def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, result_path):
+def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, result_path, url, sid, namespace):
     import settings, os
     channel_class_list = list()
     for channel in channel_list:
@@ -85,5 +86,7 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     with open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w') as f:
         f.write(write_str)
 
+    task_socket_io = SocketIO(message_queue=url)
+    task_socket_io.emit('response', {'user_id': user_id}, namespace=namespace, room=sid)
     return True
 

@@ -3,7 +3,7 @@ from database.models import User
 from database import session
 from web.auth.views import auth_blueprint
 
-def init_auth(app):
+def setup_app(app):
 
     login_manager = LoginManager()
     login_manager.init_app(app)
