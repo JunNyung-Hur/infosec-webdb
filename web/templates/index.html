@@ -165,13 +165,14 @@
                         }
                         else if(item.query_status == '1'){
                             list_element += '<div class="col"><i class="fas fa-check text-success fa-2x float-right"></i>'
-                            list_element += '<button class="btn btn-primary btn-sm float-right mr-2">다운로드</button></div>'
+                            list_element += '<button id='+item.query_id+' class="btn btn-primary btn-sm float-right mr-2">다운로드</button></div>'
                         }
                         else if(item.query_status == '2'){
                             list_element += '<span class="col"><i class="fas fa-exclamation-circle text-danger fa-2x float-right"></i></span>'
                         }
                         list_element += '</div></li>';
                         $('.query_list').append(list_element)
+                        $('#'+item.query_id).click(function(){downloadQuery(this)});
                     })
                 }
             })
@@ -223,6 +224,11 @@
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function downloadQuery(element){
+            var qid = $(element).attr('id');
+            window.location='/queries/'+qid
         }
 
         loadQueries();

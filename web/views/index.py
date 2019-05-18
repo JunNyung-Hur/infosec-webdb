@@ -1,4 +1,4 @@
-from flask import request, render_template, url_for, Blueprint, Response, session
+from flask import request, render_template, url_for, Blueprint, Response, send_file
 from flask_login import current_user, login_required
 from flask_socketio import join_room
 from sqlalchemy import desc
@@ -28,3 +28,13 @@ def get_queries():
             'query_created_at': str(user_query.created_at)
         })
     return Response(json.dumps(response_dict), status=200)
+
+
+@index_blueprint.route('/queries/<query_id>', methods=['GET'])
+@login_required
+def get_query_files(query_id):
+    user_id = current_user.id
+    query = db_session.query(Query).filter(Query.id == query_id).first()
+    if not query.user_id == user_id:
+        return Response(status=403)
+    return send_file(query.result_path, as_attachment=True)
