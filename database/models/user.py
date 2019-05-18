@@ -21,7 +21,7 @@ class User(Base):
         self.password = generate_password_hash(password)
 
     def __repr__(self):
-        return "<"+table_name+"('%s', '%s', '%s', '%s')>" % (self.id, self.md5, self.path, self.created_at)
+        return "<"+table_name+"('%s', '%s', '%s', '%s')>" % (self.id, self.username, self.email, self.active)
 
     def check_password(self, password):
         return check_password_hash(self.password, password)

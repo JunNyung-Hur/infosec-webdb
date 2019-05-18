@@ -4,30 +4,23 @@ from database.models import Virussign, Virusshare, Kisa, Kaspersky, BitDefender,
 from database import session
 from sqlalchemy import or_, desc
 from flask_socketio import SocketIO
-import datetime, requests, json
-
+import datetime, settings, os
 
 class QueryTask(Task):
 
     def apply_async(self, args=None, kwargs=None, task_id=None, producer=None,
                     link=None, link_error=None, shadow=None, **options):
-        _session = session
-        _user_id = kwargs['user_id']
-        _result_path = kwargs['result_path']
-        _query = Query(_user_id, 0, _result_path)
-        _session.add(_query)
-        _session.commit()
-
         return super(QueryTask, self).apply_async(args=args, kwargs=kwargs, task_id=task_id, producer=producer,
                                                   link=link, link_error=link_error, shadow=shadow, **options)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-
         _session = session
         _user_id = kwargs['user_id']
         _query = session.query(Query).filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
         _query.status = 2
         _session.commit()
+        task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
+        task_socket_io.emit('query_failed', namespace='/socket', room=kwargs['sid'])
 
     def on_success(self, retval, task_id, args, kwargs):
         _session = session
@@ -35,11 +28,22 @@ class QueryTask(Task):
         _query = session.query(Query).filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
         _query.status = 1
         _session.commit()
+        task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
+        task_socket_io.emit('query_success', namespace='/socket', room=kwargs['sid'])
 
 
 @celery.task(base=QueryTask)
-def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, result_path, url, sid, namespace):
-    import settings, os
+def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, redis_url, sid):
+    new_query = Query(user_id, 0, 'None')
+    session.add(new_query)
+    session.commit()
+    result_path = os.path.join(settings.QUERY_RESULT_PATH, str(user_id)+'_'+str(new_query.id)+'.txt')
+    new_query.result_path = result_path
+    session.commit()
+
+    task_socket_io = SocketIO(message_queue=redis_url)
+    task_socket_io.emit('query_start', namespace='/socket', room=sid)
+
     channel_class_list = list()
     for channel in channel_list:
         if channel == 'virussign':
@@ -86,7 +90,5 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     with open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w') as f:
         f.write(write_str)
 
-    task_socket_io = SocketIO(message_queue=url)
-    task_socket_io.emit('response', {'user_id': user_id}, namespace=namespace, room=sid)
     return True
 

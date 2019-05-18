@@ -183,39 +183,49 @@
                 return
             }
             // Setup socketio functions
-            var namespace = '/socket/queries'; // change to an empty string to use the global namespace
-            // the socket.io documentation recommends sending an explicit package upon connection
-            // this is specially important when using the global namespace
+            var namespace = '/socket'; // change to an empty string to use the global namespace
             var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
-            socket.on('response', function() {
-                alert('test1!');
-            });
-            // event handler for userid.  On initial connection, the server
-            // sends back a unique userid
             socket.on('ready', function(msg) {
-                alert('준비');
-                $.ajax({
-                    url:'/search',
-                    type:'post',
-                    data:$('#search-form').serialize(),
-                    beforeSend: function(xhr,opts){
-                    },
-                    error: function(res){
-                        if(res.responseText == 'last query is running'){
-                            alert('이전 쿼리가 아직 진행중입니다');
-                        }
-                    },
-                    success: function(msg){
-                        if(msg == 'ok'){
-                            loadQueries();
-                        }
-                    }
-                })
+                socket.emit('search', getFormData($('#search-form')))
+            });
+            socket.on('pending_exist', function() {
+                alert('아직 진행중인 쿼리가 있습니다');
+                socket.disconnect();
+                socket.close();
+            });
+            socket.on('query_start', function() {
+                loadQueries()
+            });
+            socket.on('query_success', function() {
+                sleep(500).then(()=>{
+                    loadQueries()
+                });
+                socket.disconnect();
+                socket.close();
+            });
+            socket.on('query_failed', function() {
+                loadQueries()
+                socket.disconnect();
+                socket.close();
             });
         })
 
-        loadQueries();
+        function getFormData($form){
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
 
+            $.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        loadQueries();
      });
 </script>
 
