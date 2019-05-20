@@ -36,4 +36,4 @@ def get_query_files(query_id):
     query = db_session.query(Query).filter(Query.id == query_id).first()
     if not query.user_id == user_id:
         return Response(status=403)
-    return send_file(query.result_path, as_attachment=True)
+    return send_file(query.result_path, as_attachment=True, attachment_filename="list.txt")
