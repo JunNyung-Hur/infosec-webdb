@@ -183,32 +183,7 @@
                 alert('빈 칸을 채워주세요');
                 return
             }
-            // Setup socketio functions
-            var namespace = '/socket'; // change to an empty string to use the global namespace
-            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
-            socket.on('ready', function(msg) {
-                socket.emit('search', getFormData($('#search-form')))
-            });
-            socket.on('pending_exist', function() {
-                alert('아직 진행중인 쿼리가 있습니다');
-                socket.disconnect();
-                socket.close();
-            });
-            socket.on('query_start', function() {
-                loadQueries()
-            });
-            socket.on('query_success', function() {
-                sleep(500).then(()=>{
-                    loadQueries()
-                });
-                socket.disconnect();
-                socket.close();
-            });
-            socket.on('query_failed', function() {
-                loadQueries()
-                socket.disconnect();
-                socket.close();
-            });
+            socket.emit('search', getFormData($('#search-form')))
         })
 
         function getFormData($form){
@@ -230,6 +205,25 @@
             var qid = $(element).attr('id');
             window.location='/queries/'+qid
         }
+
+        // Setup socketio functions
+        var namespace = '/socket'; // change to an empty string to use the global namespace
+        var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+        socket.on('pending_exist', function() {
+            alert('아직 진행중인 쿼리가 있습니다');
+        });
+        socket.on('query_start', function() {
+            loadQueries()
+        });
+        socket.on('query_success', function() {
+            sleep(500).then(()=>{
+                loadQueries()
+            });
+        });
+        socket.on('query_failed', function() {
+            loadQueries()
+        });
 
         loadQueries();
      });

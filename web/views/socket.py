@@ -1,5 +1,5 @@
-from flask import request
-from flask_socketio import SocketIO, emit, join_room
+from flask import request, session
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import login_required, current_user
 from database import db_session
 from database.models import Query
@@ -13,11 +13,19 @@ def setup_app(app):
     @socket_io.on('connect', namespace='/socket')
     @login_required
     def socket_connect():
-        emit('ready')
+        join_room(session['uid'], request.sid, namespace='/socket')
+        print('connect', request.sid)
+
+    @socket_io.on('disconnect', namespace='/socket')
+    @login_required
+    def socket_connect():
+        leave_room(session['uid'], request.sid, namespace='/socket')
+        print('disconnect', request.sid)
 
     @socket_io.on('search', namespace='/socket')
     @login_required
     def search(message):
+
         user_id = current_user.id
         last_query = db_session.query(Query).filter(Query.user_id == user_id).order_by(desc(Query.id)).first()
         if last_query and last_query.status == 0:
@@ -38,9 +46,6 @@ def setup_app(app):
             except Exception:
                 print('err')
             user_queries.remove(user_queries[0])
-
-        sid = request.sid
-        join_room(sid, sid, request.namespace)
         from celery_package.tasks import search_task
         search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id,
-                          redis_url=settings.CELERY_BROKER_URL, sid=sid)
+                          redis_url=settings.CELERY_BROKER_URL, room=session['uid'])

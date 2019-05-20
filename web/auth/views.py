@@ -1,8 +1,8 @@
-from flask import request, flash, abort, redirect, render_template, url_for, Blueprint, Response
+from flask import request, flash, abort, redirect, render_template, url_for, Blueprint, Response, session
 from flask_login import login_user, current_user, logout_user, login_required
 from database.models import User
 from database import db_session
-
+import uuid
 auth_blueprint = Blueprint('auth', __name__)
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -22,6 +22,8 @@ def login():
         if not user.check_password(password):
             return Response('login failed', status=400)
         login_user(user)
+        session['uid'] = str(uuid.uuid4())
+
         user.authenticated = True
         db_session.commit()
 
@@ -43,4 +45,5 @@ def logout():
     user.authenticated = False
     db_session.commit()
     logout_user()
+    del session['uid']
     return redirect(url_for('index.index'))
