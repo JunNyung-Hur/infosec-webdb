@@ -1,10 +1,9 @@
 from flask import request, render_template, url_for, Blueprint, Response, send_file
 from flask_login import current_user, login_required
-from flask_socketio import join_room
-from sqlalchemy import desc
-from database import session as db_session
+from database import db_session
 from database.models import Query
-import json, datetime, settings
+import json
+
 
 index_blueprint = Blueprint('index', __name__)
 

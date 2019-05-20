@@ -4,10 +4,12 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import settings
 
-if __name__ == 'database':
-    engine = create_engine(settings.DB_URI, echo=True)
-    session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-    Base = declarative_base()
+engine = create_engine(settings.DB_URI, echo=True)
+db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
 
+def init_db():
+    from database import models
     Base.metadata.create_all(engine)
-    session.commit()
+    db_session.commit()

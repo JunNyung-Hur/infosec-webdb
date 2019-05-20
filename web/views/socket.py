@@ -1,10 +1,11 @@
 from flask import request
 from flask_socketio import SocketIO, emit, join_room
 from flask_login import login_required, current_user
-from database import session as db_session
+from database import db_session
 from database.models import Query
 from sqlalchemy import desc
 import settings, os
+
 
 def setup_app(app):
     socket_io = SocketIO(app, message_queue=settings.CELERY_BROKER_URL)

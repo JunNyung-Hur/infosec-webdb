@@ -1,7 +1,7 @@
 from flask import request, flash, abort, redirect, render_template, url_for, Blueprint, Response
 from flask_login import login_user, current_user, logout_user, login_required
-from database import session
 from database.models import User
+from database import db_session
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -15,7 +15,7 @@ def login():
         # user should be an instance of your `User` class
         username = request.form['username']
         password = request.form['password']
-        user = session.query(User).filter(User.username == username).all()
+        user = User.query.filter(User.username == username).all()
         if not len(user):
             return Response('login failed', status=400)
         user = user[0]
@@ -23,7 +23,7 @@ def login():
             return Response('login failed', status=400)
         login_user(user)
         user.authenticated = True
-        session.commit()
+        db_session.commit()
 
         flash('Logged in successfully.')
 
@@ -41,6 +41,6 @@ def login():
 def logout():
     user = current_user
     user.authenticated = False
-    session.commit()
+    db_session.commit()
     logout_user()
     return redirect(url_for('index.index'))
