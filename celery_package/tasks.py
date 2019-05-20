@@ -20,8 +20,6 @@ class QueryTask(Task):
         db_session.commit()
         task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
         task_socket_io.emit('query_failed', namespace='/socket', room=kwargs['room'])
-        with open(_query.result_path, 'w') as f:
-            f.write(einfo)
 
     def on_success(self, retval, task_id, args, kwargs):
         _user_id = kwargs['user_id']
@@ -41,7 +39,7 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     new_query.result_path = result_path
     db_session.commit()
 
-    task_socket_io = SocketIO(message_queue=redis_url)
+    task_socket_io = SocketIO(message_queue=redis_url, logger=True,  engineio_logger=True)
     task_socket_io.emit('query_start', namespace='/socket', room=room)
 
     channel_class_list = list()

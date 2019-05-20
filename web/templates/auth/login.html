@@ -17,7 +17,7 @@
       <label for="inputID" class="sr-only">ID</label>
       <input type="text" id="inputID" name="username" class="form-control" placeholder="ID" required autofocus autocomplete="off">
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
+      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required autocomplete="off">
       <label class="failed-login invisible">로그인에 실패하였습니다.</label>
       <div class="checkbox">
         <label>
@@ -39,7 +39,11 @@
         }
         return true;
       }
-      $('#btn-submit').click(function(){
+      function login(){
+        if(!checkForm()){
+          $('.failed-login').removeClass('invisible');
+            return false;
+        }
         var formData = $('.form-signin').serialize();
         $.ajax({
           url: '/auth/login',
@@ -59,6 +63,17 @@
             $('.failed-login').removeClass('invisible');
           }
         });
+      }
+
+      $('#inputPassword').on('keydown', function(e) {
+        if (e.which == 13) {
+          e.preventDefault();
+          login();
+        }
+      });
+
+      $('#btn-submit').click(function(){
+        login();
       });
 
     </script>

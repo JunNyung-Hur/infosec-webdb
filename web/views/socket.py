@@ -14,13 +14,13 @@ def setup_app(app):
     @login_required
     def socket_connect():
         join_room(session['uid'], request.sid, namespace='/socket')
-        print('connect', request.sid)
+        print('connect socket: ', request.sid)
 
     @socket_io.on('disconnect', namespace='/socket')
     @login_required
     def socket_connect():
         leave_room(session['uid'], request.sid, namespace='/socket')
-        print('disconnect', request.sid)
+        print('disconnect socket: ', request.sid)
 
     @socket_io.on('search', namespace='/socket')
     @login_required
@@ -44,7 +44,7 @@ def setup_app(app):
             try:
                 os.remove(user_queries[0].result_path)
             except Exception:
-                print('err')
+                print('Not such a query file does not exist')
             user_queries.remove(user_queries[0])
         from celery_package.tasks import search_task
         search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id,

@@ -2,27 +2,24 @@ from flask import request, flash, abort, redirect, render_template, url_for, Blu
 from flask_login import login_user, current_user, logout_user, login_required
 from database.models import User
 from database import db_session
-import uuid
+from flask_socketio import close_room
 auth_blueprint = Blueprint('auth', __name__)
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
-    # Here we use a class of some kind to represent and validate our
-    # client-side form data. For example, WTForms is a library that will
-    # handle this for us, and we use a custom LoginForm to validate.
     if request.method == 'POST':
-        # Login and validate the user.
-        # user should be an instance of your `User` class
+
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter(User.username == username).all()
         if not len(user):
             return Response('login failed', status=400)
         user = user[0]
+
         if not user.check_password(password):
             return Response('login failed', status=400)
         login_user(user)
-        session['uid'] = str(uuid.uuid4())
+        session['uid'] = str(user.username)
 
         user.authenticated = True
         db_session.commit()
@@ -30,6 +27,7 @@ def login():
         flash('Logged in successfully.')
 
         next = request.args.get('next')
+
         # is_safe_url should check if the url is safe for redirects.
         # See http://flask.pocoo.org/snippets/62/ for an example.
         #if not is_safe_url(next):
@@ -45,5 +43,6 @@ def logout():
     user.authenticated = False
     db_session.commit()
     logout_user()
+    close_room(session['uid'], '/search')
     del session['uid']
     return redirect(url_for('index.index'))
