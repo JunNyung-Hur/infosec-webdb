@@ -36,7 +36,7 @@ def setup_app(app):
         end_date = message['end-collected']
         label_company = message['label-company']
         label = message['label']
-        limit = message['limit']
+        limit = message['limit'] if 'limit' in message else None
         user_queries = db_session.query(Query).filter(Query.user_id == user_id).order_by(Query.created_at).all()
         while len(user_queries) > 9:
             db_session.delete(user_queries[0])
@@ -46,6 +46,7 @@ def setup_app(app):
             except Exception:
                 print('Not such a query file does not exist')
             user_queries.remove(user_queries[0])
+        db_session.close()
         from celery_package.tasks import search_task
         search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id,
                           redis_url=settings.CELERY_BROKER_URL, room=session['uid'])

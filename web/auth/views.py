@@ -23,6 +23,7 @@ def login():
 
         user.authenticated = True
         db_session.commit()
+        db_session.close()
 
         flash('Logged in successfully.')
 
@@ -42,6 +43,7 @@ def logout():
     user = current_user
     user.authenticated = False
     db_session.commit()
+    db_session.close()
     logout_user()
     close_room(session['uid'], '/search')
     del session['uid']

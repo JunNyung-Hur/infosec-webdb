@@ -18,6 +18,7 @@ class QueryTask(Task):
         _query = Query.query.filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
         _query.status = 2
         db_session.commit()
+        db_session.close()
         task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
         task_socket_io.emit('query_failed', namespace='/socket', room=kwargs['room'])
 
@@ -26,6 +27,7 @@ class QueryTask(Task):
         _query = Query.query.filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
         _query.status = 1
         db_session.commit()
+        db_session.close()
         task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
         task_socket_io.emit('query_success', namespace='/socket', room=kwargs['room'])
 
@@ -72,8 +74,10 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     query = query.join(label_company)
     if not label_company == Benign:
         query = query.filter(label_company.label.contains(label))
-    query = query.limit(limit)
+    if limit:
+        query = query.limit(limit)
     query_results = query.all()
+    db_session.close()
 
     path_list = list()
     for query_result in query_results:

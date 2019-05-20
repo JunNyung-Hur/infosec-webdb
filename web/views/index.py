@@ -19,6 +19,7 @@ def index():
 def get_queries():
     user_id = current_user.id
     user_queries = db_session.query(Query).filter(Query.user_id == user_id).order_by(Query.created_at).all()
+    db_session.close()
     response_dict = list()
     for user_query in user_queries:
         response_dict.append({
@@ -34,6 +35,7 @@ def get_queries():
 def get_query_files(query_id):
     user_id = current_user.id
     query = db_session.query(Query).filter(Query.id == query_id).first()
+    db_session.close()
     if not query.user_id == user_id:
         return Response(status=403)
     return send_file(query.result_path, as_attachment=True, attachment_filename="list.txt")
