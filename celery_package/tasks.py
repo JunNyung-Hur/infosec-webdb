@@ -45,6 +45,9 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
     task_socket_io.emit('query_start', namespace='/socket', room=room)
 
     channel_class_list = list()
+    if type(channel_list) == str:
+        channel_list = [channel_list]
+
     for channel in channel_list:
         if channel == 'virussign':
             channel_class_list.append(Virussign)
@@ -66,11 +69,15 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
         label_company = Benign
 
     query = RawFile.query.distinct().with_entities(RawFile.path)
-    query = query.filter(or_(
-        channel_class.raw_file_md5 == RawFile.md5 for channel_class in channel_class_list)
-    )
+    if len(channel_class_list) == 1:
+        query = query.filter(channel_class_list[0].raw_file_md5 == RawFile.md5)
+    else:
+        query = query.filter(or_(
+            channel_class.raw_file_md5 == RawFile.md5 for channel_class in channel_class_list)
+        )
     for channel_class in channel_class_list:
         query = query.filter(channel_class.collected_at >= start_date).filter(channel_class.collected_at < end_date)
+
     query = query.join(label_company)
     if not label_company == Benign:
         query = query.filter(label_company.label.contains(label))

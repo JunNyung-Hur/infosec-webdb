@@ -208,15 +208,20 @@
             socket.emit('search', getFormData($('#search-form')))
         })
 
-        function getFormData($form){
-            var unindexed_array = $form.serializeArray();
-            var indexed_array = {};
-
-            $.map(unindexed_array, function(n, i){
-                indexed_array[n['name']] = n['value'];
+        function getFormData(form){
+            var o = {};
+            var a = form.serializeArray();
+            $.each(a, function() {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
             });
-
-            return indexed_array;
+            return o;
         }
 
         function sleep(ms) {

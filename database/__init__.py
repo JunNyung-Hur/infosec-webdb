@@ -13,3 +13,4 @@ def init_db():
     from database import models
     Base.metadata.create_all(engine)
     db_session.commit()
+    db_session.close()
