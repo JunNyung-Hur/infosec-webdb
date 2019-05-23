@@ -37,7 +37,7 @@ DB_ID = config.get('DATABASE', 'ID')
 DB_PASSWORD = config.get('DATABASE', 'PASSWORD')
 DB_NAME = config.get('DATABASE', 'DB_NAME')
 DB_URI = 'mysql://'+DB_ID+":"+DB_PASSWORD+"@"+DB_HOST+'/'+DB_NAME
-
+DB_ECHO = config.getboolean('DATABASE', 'ECHO')
 '''
     Celery Variable
 '''

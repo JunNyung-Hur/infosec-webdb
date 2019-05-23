@@ -2,7 +2,7 @@ from celery import Task
 from celery_package import celery
 from database import db_session
 from database.models import Virussign, Virusshare, Kisa, Kaspersky, BitDefender, Symantec, Benign, RawFile, Query
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, union_all
 from flask_socketio import SocketIO
 import datetime, settings, os
 
@@ -44,27 +44,31 @@ def search_task(file_type, channel_list, date_range, vaccine_company, label, lim
     task_socket_io = SocketIO(message_queue=redis_url, logger=True,  engineio_logger=True)
     task_socket_io.emit('query_start', namespace='/socket', room=room)
 
-    channel_class_list = list()
     if type(channel_list) == str:
         channel_list = [channel_list]
 
+    partial_query_list = list()
     for channel in channel_list:
         if channel == 'virussign':
-            channel_class_list.append(Virussign)
+            channel_class = Virussign
         elif channel == 'virusshare':
-            channel_class_list.append(Virusshare)
+            channel_class = Virusshare
         elif channel == 'kisa':
-            channel_class_list.append(Kisa)
+            channel_class = Kisa
         elif channel == 'benign-crawling':
-            channel_class_list.append(Benign)
+            channel_class = Benign
 
-    query = RawFile.query.distinct().with_entities(RawFile.path)
-    if len(channel_class_list) == 1:
-        query = query.filter(channel_class_list[0].raw_file_md5 == RawFile.md5)
-    else:
-        query = query.filter(or_(
-            channel_class.raw_file_md5 == RawFile.md5 for channel_class in channel_class_list)
-        )
+        partial_query = RawFile.query.filter(RawFile.md5 == channel_class.raw_file_md5)
+        if date_range:
+            start_date = datetime.datetime.strptime(date_range[0], '%Y-%m-%d')
+            end_date = datetime.datetime.strptime(date_range[1], '%Y-%m-%d') + datetime.timedelta(days=1)
+            partial_query.filter(channel_class.collected_at >= start_date).filter(channel_class.collected_at < end_date)
+        partial_query_list.append(partial_query)
+
+    query = partial_query_list[0]
+    for partial_query in partial_query_list[1:]:
+        query = query.union(partial_query)
+    query = query.with_entities(RawFile.md5, RawFile.path)
 
     if file_type == 'malware':
         if vaccine_company == 'kaspersky':
@@ -83,14 +87,6 @@ def search_task(file_type, channel_list, date_range, vaccine_company, label, lim
         subquery3 = Symantec.query.distinct().with_entities(Symantec.raw_file_md5)
         query = query.filter(~RawFile.md5.in_(subquery1)).filter(~RawFile.md5.in_(subquery2)).filter(~RawFile.md5.in_(subquery3))
 
-
-    if date_range:
-        start_date = datetime.datetime.strptime(date_range[0], '%Y-%m-%d')
-        end_date = datetime.datetime.strptime(date_range[1], '%Y-%m-%d')+datetime.timedelta(days=1)
-
-        for channel_class in channel_class_list:
-            query = query.filter(channel_class.collected_at >= start_date).filter(channel_class.collected_at < end_date)
-
     if limit:
         query = query.limit(limit)
     query_results = query.all()
@@ -98,7 +94,7 @@ def search_task(file_type, channel_list, date_range, vaccine_company, label, lim
 
     path_list = list()
     for query_result in query_results:
-        path_list.append(query_result[0])
+        path_list.append(query_result[1])
 
     write_str = str()
     if len(path_list):
