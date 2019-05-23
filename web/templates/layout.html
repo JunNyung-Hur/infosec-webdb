@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 </head>
 <body>
-    <div class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-5">
+    <div class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm mb-3">
         <a class="navbar-brand" href="/">Seclab Database</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -23,18 +23,19 @@
                     <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
             </ul>
-            <span class="navbar-text mr-3">
-                {{ current_user.username }}
-            </span>
+            <div class="navbar-nav">
+                <span class="navbar-text mr-3">
+                    {{ current_user.username }}
+                </span>
+                <a class="btn btn-outline-primary" href="/auth/logout">Sign out</a>
+            </div>
         </div>
-
-            <a class="btn btn-outline-primary" href="/auth/logout">Sign out</a>
-
     </div>
     <script src="/static/jquery/jquery.js"></script>
     <script src="/static/bootstrap-4.3.1/js/bootstrap.min.js"></script>
     <div class="container">
     {% block content %}{% endblock %}
+        <footer class="pt-4 my-md-5 pt-md5 border-top"></footer>
     </div><!-- /.container -->
 </body>
 </html>
