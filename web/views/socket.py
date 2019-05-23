@@ -30,6 +30,7 @@ def setup_app(app):
         last_query = db_session.query(Query).filter(Query.user_id == user_id).order_by(desc(Query.id)).first()
         if last_query and last_query.status == 0:
             emit('pending_exist')
+            db_session.close()
             return False
 
         file_type = message['type']

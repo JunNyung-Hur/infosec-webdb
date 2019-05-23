@@ -11,13 +11,13 @@ class RawFile(Base):
     md5 = Column(String(128), nullable=False, unique=True)
     path = Column(String(1024), nullable=False)
     created_at = Column(DateTime, nullable=False)
-    benign_label = relationship('Benign', back_populates='raw_file')
     bitdefender_label = relationship('BitDefender', back_populates='raw_file')
     kaspersky_label = relationship('Kaspersky', back_populates='raw_file')
     symantec_label = relationship('Symantec', back_populates='raw_file')
     kisa = relationship('Kisa', back_populates='raw_file')
     virussign = relationship('Virussign', back_populates='raw_file')
     virusshare = relationship('Virusshare', back_populates='raw_file')
+    benign = relationship('Benign', back_populates='raw_file')
 
     def __init__(self, md5, path, created_at):
         self.md5 = md5

@@ -77,7 +77,12 @@ def search_task(file_type, channel_list, date_range, vaccine_company, label, lim
         query = query.join(vaccine_company)
         query = query.filter(vaccine_company.label.contains(label))
 
-    # elif file_type == 'benign':
+    elif file_type == 'benign':
+        subquery1 = Kaspersky.query.distinct().with_entities(Kaspersky.raw_file_md5)
+        subquery2 = BitDefender.query.distinct().with_entities(BitDefender.raw_file_md5)
+        subquery3 = Symantec.query.distinct().with_entities(Symantec.raw_file_md5)
+        query = query.filter(~RawFile.md5.in_(subquery1)).filter(~RawFile.md5.in_(subquery2)).filter(~RawFile.md5.in_(subquery3))
+
 
     if date_range:
         start_date = datetime.datetime.strptime(date_range[0], '%Y-%m-%d')
