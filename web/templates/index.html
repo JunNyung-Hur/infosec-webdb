@@ -7,9 +7,18 @@
 <div class="row mt-5">
     <div class="col-md-6 p-4 border">
         <form id="search-form">
-            <div>
-                <label>수집 채널 선택</label>
+            <p class="h5">파일 타입</p>
+            <div class="mb-4">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="type" id="malware" value="malware" checked/>
+                    <label class="form-check-label" for="malware">악성</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="type" id="benign" value="benign" />
+                    <label class="form-check-label" for="benign">정상</label>
+                </div>
             </div>
+            <p class="h5">수집 채널</p>
             <div class="mb-4">
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" name="channel" id="virussign" value="virussign">
@@ -23,59 +32,59 @@
                     <input class="form-check-input" type="checkbox" name="channel" id="kisa" value="kisa">
                     <label class="form-check-label" for="kisa">KISA</label>
                 </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="channel" id="benign-crawling" value="benign-crawling" disabled>
+                    <label class="form-check-label" for="benign-crawling">정상 크롤링</label>
+                </div>
             </div>
-            <div>
-                <label>수집 기간 선택</label>
+            <hr/>
+            <p class="h5">백신 회사</p>
+            <div class="mb-4">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="vaccine-company" id="kaspersky" value="kaspersky" checked/>
+                    <label class="form-check-label" for="kaspersky">카스퍼스키</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="vaccine-company" id="bitdefender" value="bitdefender" />
+                    <label class="form-check-label" for="bitdefender">BitDefender</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="vaccine-company" id="symantec" value="symantec" />
+                    <label class="form-check-label" for="symantec">시만텍</label>
+                </div>
+            </div>
+            <p class="h5">라벨 필터링</p>
+            <div class="form-group mb-4">
+                <input class="form-control" type="text" id="label" name="label">
+            </div>
+            <hr/>
+            <p class="h5">수집 기간</p>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="date-all" checked/>
+                <label class="form-check-label" for="date-all">모든 기간</label>
             </div>
             <div class="collected-range row mx-0 mb-4">
                 <div class="col-5 col-md-5 mx-0 px-0">
-                    <input id="start-collected" name="start-collected" class="form-control input-date"/>
+                    <input id="start-collected" name="start-collected" class="form-control input-date" autocomplete="off" disabled/>
                 </div>
                 <div class="col-2 col-md-2 mx-0 px-0 text-center">
                     <label class="">~</label>
                 </div>
                 <div class="col-5 col-md-5 mx-0 px-0">
-                    <input id="end-collected" name="end-collected" class="form-control input-date" />
+                    <input id="end-collected" name="end-collected" class="form-control input-date" autocomplete="off" disabled/>
                 </div>
             </div>
-            <div>
-                <label>백신 회사 선택</label>
-            </div>
-            <div class="mb-4">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="label-company" id="kaspersky" value="kaspersky" checked/>
-                    <label class="form-check-label" for="kaspersky">카스퍼스키</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="label-company" id="bitdefender" value="bitdefender" />
-                    <label class="form-check-label" for="bitdefender">BitDefender</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="label-company" id="symantec" value="symantec" />
-                    <label class="form-check-label" for="symantec">시만텍</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="label-company" id="all-benign" value="all-benign" />
-                    <label class="form-check-label" for="all-benign">모두 정상</label>
-                </div>
-            </div>
-            <div class="form-group mb-4">
-                <label for="label">라벨 필터링</label>
-                <input class="form-control" type="text" id="label" name="label">
-            </div>
-            <div>
-                <label for="limit">가져올 갯수</label>
+            <p class="h5">파일 갯수</p>
+            <div class="form-check">
+                <input type="checkbox" id="get-all" class="form-check-input" checked/>
+                <label class="form-check-label" for="get-all">모두 가져오기</label>
             </div>
             <div class="form-row align-items-center mb-3">
                 <div class="col-4">
-                    <input type="number" class="form-control" id="limit" name="limit" value="1">
-                </div>
-                <div class="col-8">
-                    <div class="form-check">
-                        <input type="checkbox" name="limit-all" class="form-check-input"/><label class="form-check-label">모두 가져오기</label>
-                    </div>
+                    <input type="number" class="form-control" id="limit" name="limit" disabled>
                 </div>
             </div>
+            <hr/>
             <button type="button" class="btn btn-primary float-right" id="search">검색</button>
         </form>
     </div>
@@ -106,16 +115,32 @@
             uiLibrary: 'bootstrap4',
             format: 'yyyy-mm-dd'
         });
-        $('input[name=label-company]').click(function(){
+        $('input[name=type]').click(function(){
             var radioValue = $(this).val();
-            if(radioValue == 'all-benign'){
+            if(radioValue == 'benign'){
+                $('#benign-crawling').prop("disabled", false);
+                $('input[name=vaccine-company]').attr("disabled", true);
                 $('#label').prop("disabled", true);
             }
             else{
+                $('#benign-crawling').prop("checked", false);
+                $('#benign-crawling').prop("disabled", true);
+                $('input[name=vaccine-company]').attr("disabled", false);
                 $('#label').prop("disabled", false);
             }
         });
-        $('input[name=limit-all]').click(function(){
+        $('#date-all').click(function(){
+            var isChecked = $(this).prop('checked');
+            if(isChecked){
+                $('#start-collected').prop("disabled", true);
+                $('#end-collected').prop("disabled", true);
+            }
+            else{
+                $('#start-collected').prop("disabled", false);
+                $('#end-collected').prop("disabled", false);
+            }
+        });
+        $('#get-all').click(function(){
             if($('#limit').attr("disabled") == "disabled"){
                 $('#limit').prop("disabled", false);
             }
@@ -156,16 +181,10 @@
             if(!$('input:checkbox[name=channel]').is(':checked')){
                 return false;
             }
-            if($('#start-collected').val() == '' || $('#end-collected').val() == ''){
+            if(!$('#date-all').prop('checked') && ($('#start-collected').val() == '' || $('#end-collected').val() == '')){
                 return false;
             }
-            if(!$('input:radio[name=label-company]').is(':checked')){
-                return false;
-            }
-            if($('#limit').val() == ''){
-                return false;
-            }
-            if(parseInt($('#limit').val())<1){
+            if(!$('#get-all').prop('checked') && ($('#limit').val() == '' || parseInt($('#limit').val())<1 )){
                 return false;
             }
             return true;

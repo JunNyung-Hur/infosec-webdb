@@ -19,6 +19,7 @@ def create_app():
         SECRET_KEY='qwe123!@3',
         EXTENSIONS=['web.views.socket', 'web.views', 'web.auth'],
     )
+
     registry = Registry(app=app)
     registry['packages'] = ExtensionRegistry(app=app)
     init_db()

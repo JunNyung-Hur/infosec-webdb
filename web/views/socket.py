@@ -31,11 +31,15 @@ def setup_app(app):
         if last_query and last_query.status == 0:
             emit('pending_exist')
             return False
+
+        file_type = message['type']
         channel_list = message['channel']
-        start_date = message['start-collected']
-        end_date = message['end-collected']
-        label_company = message['label-company']
-        label = message['label']
+
+        date_range = None
+        if 'start-collected' in message and 'end-collected' in message:
+            date_range = (message['start-collected'], message['end-collected'])
+        vaccine_company = message['vaccine-company'] if 'vaccine-company' in message else None
+        label = message['label'] if 'label' in message else None
         limit = message['limit'] if 'limit' in message else None
         user_queries = db_session.query(Query).filter(Query.user_id == user_id).order_by(Query.created_at).all()
         while len(user_queries) > 9:
@@ -48,5 +52,5 @@ def setup_app(app):
             user_queries.remove(user_queries[0])
         db_session.close()
         from celery_package.tasks import search_task
-        search_task.delay(channel_list, start_date, end_date, label_company, label, limit, user_id=user_id,
+        search_task.delay(file_type, channel_list, date_range, vaccine_company, label, limit, user_id=user_id,
                           redis_url=settings.CELERY_BROKER_URL, room=session['uid'])

@@ -33,7 +33,7 @@ class QueryTask(Task):
 
 
 @celery.task(base=QueryTask)
-def search_task(channel_list, start_date, end_date, label_company, label, limit, user_id, redis_url, room):
+def search_task(file_type, channel_list, date_range, vaccine_company, label, limit, user_id, redis_url, room):
     new_query = Query(user_id, 0, 'None')
     db_session.add(new_query)
     db_session.commit()
@@ -55,18 +55,8 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
             channel_class_list.append(Virusshare)
         elif channel == 'kisa':
             channel_class_list.append(Kisa)
-
-    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')+datetime.timedelta(days=1)
-
-    if label_company == 'kaspersky':
-        label_company = Kaspersky
-    elif label_company == 'bitdefender':
-        label_company = BitDefender
-    elif label_company == 'symantec':
-        label_company = Symantec
-    elif label_company == 'benign':
-        label_company = Benign
+        elif channel == 'benign-crawling':
+            channel_class_list.append(Benign)
 
     query = RawFile.query.distinct().with_entities(RawFile.path)
     if len(channel_class_list) == 1:
@@ -75,12 +65,27 @@ def search_task(channel_list, start_date, end_date, label_company, label, limit,
         query = query.filter(or_(
             channel_class.raw_file_md5 == RawFile.md5 for channel_class in channel_class_list)
         )
-    for channel_class in channel_class_list:
-        query = query.filter(channel_class.collected_at >= start_date).filter(channel_class.collected_at < end_date)
 
-    query = query.join(label_company)
-    if not label_company == Benign:
-        query = query.filter(label_company.label.contains(label))
+    if file_type == 'malware':
+        if vaccine_company == 'kaspersky':
+            vaccine_company = Kaspersky
+        elif vaccine_company == 'bitdefender':
+            vaccine_company = BitDefender
+        elif vaccine_company == 'symantec':
+            vaccine_company = Symantec
+
+        query = query.join(vaccine_company)
+        query = query.filter(vaccine_company.label.contains(label))
+
+    # elif file_type == 'benign':
+
+    if date_range:
+        start_date = datetime.datetime.strptime(date_range[0], '%Y-%m-%d')
+        end_date = datetime.datetime.strptime(date_range[1], '%Y-%m-%d')+datetime.timedelta(days=1)
+
+        for channel_class in channel_class_list:
+            query = query.filter(channel_class.collected_at >= start_date).filter(channel_class.collected_at < end_date)
+
     if limit:
         query = query.limit(limit)
     query_results = query.all()
