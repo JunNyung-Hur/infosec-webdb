@@ -17,3 +17,12 @@ ul{
     right: -5px;
     width: 400px;
 }
+@media (max-width: 768px){
+    .alert{
+        position: fixed;
+        top: 90%;
+        right: 0px;
+        width: 100%;
+        text-align: center;
+    }
+}
