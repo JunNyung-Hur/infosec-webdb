@@ -10,3 +10,10 @@ ul{
     max-width: none;
   }
 }
+
+.alert{
+    position: fixed;
+    top: 90%;
+    right: -5px;
+    width: 400px;
+}

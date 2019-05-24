@@ -114,9 +114,24 @@
             <a href="https://github.com/Junnyung-Heo/seclab_ftpclient">전용 FTP Client 다운받기</a>
         </span>
     </div>
-</div>
-
-<script>
+    <script>
+    function alertMessage(message, level){
+        var alertHTML = document.createElement('div')
+        alertHTML.classList.add('alert')
+        alertHTML.classList.add('alert-'+level)
+        alertHTML.classList.add('alert-dismissible')
+        alertHTML.classList.add('fade')
+        alertHTML.setAttribute('role', 'alert');
+        alertHTML.innerHTML = message
+        $(alertHTML).on('closed.bs.alert', function () {
+            $(alertHTML).remove();
+        })
+        $('.alert-area').append(alertHTML);
+        $(alertHTML).addClass('show');
+        setTimeout(function() {
+            $(alertHTML).alert('close');
+        }, 1500);
+    }
     $(document).ready(function(){
         $('#start-collected').datepicker({
             uiLibrary: 'bootstrap4',
@@ -190,15 +205,15 @@
 
         function checkForm(){
             if(!$('input:checkbox[name=channel]').is(':checked')){
-                alert('수집 채널을 선택해주세요');
+                alertMessage('수집 채널을 선택해주세요.', 'danger');
                 return false;
             }
             if($('#date-limit').prop('checked') && ($('#start-collected').val() == '' || $('#end-collected').val() == '')){
-                alert('기간 제한을 정확하게 해주세요');
+                alertMessage('기간 제한을 정확하게 입력해주세요.', 'danger');
                 return false;
             }
             if($('#get-limit').prop('checked') && ($('#limit').val() == '' || parseInt($('#limit').val())<1 )){
-                alert('갯수 제한을 정확하게 해주세요');
+                alertMessage('가져올 개수를 정확하게 입력해주세요.', 'danger');
                 return false;
             }
             return true;
@@ -219,10 +234,14 @@
                             </div><span class="float-right mr-3">검색 중</span></td>'
                         }
                         else if(item.query_status == '1'){
+                            list_element += '<td><div class="spinner-border text-warning float-right" role="status">\
+                            </div><span class="float-right mr-3">리스트 작성중</span></td>'
+                        }
+                        else if(item.query_status == '2'){
                             list_element += '<td><i class="fas fa-check text-success fa-2x float-right"></i>'
                             list_element += '<button id='+item.query_id+' class="btn btn-primary btn-sm float-right mr-2">다운로드</button></td>'
                         }
-                        else if(item.query_status == '2'){
+                        else if(item.query_status == '3'){
                             list_element += '<td><i class="fas fa-exclamation-circle text-danger fa-2x float-right"></i></td>'
                         }
                         list_element += '</tr>';
@@ -270,9 +289,13 @@
         var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
         socket.on('pending_exist', function() {
-            alert('아직 진행중인 쿼리가 있습니다');
+            alertMessage('아직 진행중인 쿼리가 있습니다.', 'danger');
         });
         socket.on('query_start', function() {
+            loadQueries()
+            alertMessage('검색 쿼리가 등록되었습니다.', 'primary');
+        });
+        socket.on('query_listing', function() {
             loadQueries()
         });
         socket.on('query_success', function() {
@@ -287,5 +310,7 @@
         loadQueries();
      });
 </script>
+</div>
+<div class="alert-area"></div>
 
 {% endblock %}

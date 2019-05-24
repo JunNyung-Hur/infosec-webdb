@@ -20,6 +20,10 @@ def get_queries():
     user_id = current_user.id
     user_queries = db_session.query(Query).filter(Query.user_id == user_id).order_by(Query.created_at).all()
     db_session.close()
+
+    while len(user_queries) > 10:
+        user_queries.remove(user_queries[0])
+
     response_dict = list()
     for user_query in user_queries:
         response_dict.append({

@@ -14,18 +14,18 @@ class QueryTask(Task):
                                                   link=link, link_error=link_error, shadow=shadow, **options)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        _user_id = kwargs['user_id']
-        _query = Query.query.filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
-        _query.status = 2
+        query_id = kwargs['query_id']
+        _query = Query.query.filter(Query.id == query_id).first()
+        _query.status = 3
         db_session.commit()
         db_session.close()
         task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
         task_socket_io.emit('query_failed', namespace='/socket', room=kwargs['room'])
 
     def on_success(self, retval, task_id, args, kwargs):
-        _user_id = kwargs['user_id']
-        _query = Query.query.filter(Query.user_id == _user_id).order_by(desc(Query.id)).first()
-        _query.status = 1
+        query_id = kwargs['query_id']
+        _query = Query.query.filter(Query.id == query_id).first()
+        _query.status = 2
         db_session.commit()
         db_session.close()
         task_socket_io = SocketIO(message_queue=kwargs['redis_url'])
@@ -33,16 +33,7 @@ class QueryTask(Task):
 
 
 @celery.task(base=QueryTask)
-def search_task(file_type, channel_list, date_range, vaccine_company, label, limit, user_id, redis_url, room):
-    new_query = Query(user_id, 0, 'None')
-    db_session.add(new_query)
-    db_session.commit()
-    result_path = os.path.join(settings.QUERY_RESULT_PATH, str(user_id)+'_'+str(new_query.id)+'.txt')
-    new_query.result_path = result_path
-    db_session.commit()
-
-    task_socket_io = SocketIO(message_queue=redis_url, logger=True,  engineio_logger=True)
-    task_socket_io.emit('query_start', namespace='/socket', room=room)
+def search_task(file_type, channel_list, date_range, vaccine_company, label, limit, result_path, query_id, redis_url, room):
 
     if type(channel_list) == str:
         channel_list = [channel_list]
@@ -90,20 +81,19 @@ def search_task(file_type, channel_list, date_range, vaccine_company, label, lim
     if limit:
         query = query.limit(limit)
     query_results = query.all()
+
+    _query = Query.query.filter(Query.id == query_id).first()
+    _query.status = 1
+    db_session.commit()
     db_session.close()
 
-    path_list = list()
+    task_socket_io = SocketIO(message_queue=redis_url)
+    task_socket_io.emit('query_listing', namespace='/socket', room=room)
+
+    f = open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w')
     for query_result in query_results:
-        path_list.append(query_result[1])
-
-    write_str = str()
-    if len(path_list):
-        for path in path_list[:-1]:
-            write_str += path+'\n'
-        write_str += path_list[-1]
-
-    with open(os.path.join(settings.QUERY_RESULT_PATH, result_path), 'w') as f:
-        f.write(write_str)
+        f.write(query_result[1]+'\n')
+    f.close()
 
     return True
 
