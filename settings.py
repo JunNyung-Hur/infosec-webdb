@@ -28,23 +28,35 @@ APP_NAME = config.get('WEB', 'APP_NAME')
 WEB_HOST = config.get('WEB', 'HOST')
 WEB_PORT = config.get('WEB', 'PORT')
 
+
 '''
-    DB Variable
+    MONGODB Variable
 '''
-DB_HOST = config.get('DATABASE', 'HOST')
-DB_PORT = config.get('DATABASE', 'PORT')
-DB_ID = config.get('DATABASE', 'ID')
-DB_PASSWORD = config.get('DATABASE', 'PASSWORD')
-DB_NAME = config.get('DATABASE', 'DB_NAME')
-DB_URI = 'mysql://'+DB_ID+":"+DB_PASSWORD+"@"+DB_HOST+'/'+DB_NAME
-DB_ECHO = config.getboolean('DATABASE', 'ECHO')
+MONGODB_HOST = config.get('MONGODB', 'HOST')
+MONGODB_PORT = config.get('MONGODB', 'PORT')
+MONGODB_ID = config.get('MONGODB', 'ID')
+MONGODB_PASSWORD = config.get('MONGODB', 'PASSWORD')
+MONGODB_NAME = config.get('MONGODB', 'DB_NAME')
+MONGODB_URI = 'mongodb://%s:%s@%s:%s' % (MONGODB_ID, MONGODB_PASSWORD, MONGODB_HOST, MONGODB_PORT)
+'''
+    MYSQL Variable
+'''
+MYSQL_HOST = config.get('MYSQL', 'HOST')
+MYSQL_PORT = config.get('MYSQL', 'PORT')
+MYSQL_ID = config.get('MYSQL', 'ID')
+MYSQL_PASSWORD = config.get('MYSQL', 'PASSWORD')
+MYSQL_NAME = config.get('MYSQL', 'DB_NAME')
+MYSQL_URI = 'mysql://'+MYSQL_ID+":"+MYSQL_PASSWORD+"@"+MYSQL_HOST+'/'+MYSQL_NAME
+MYSQL_ECHO = config.getboolean('MYSQL', 'ECHO')
+
+
 '''
     Celery Variable
 '''
 BROKER_HOST = config.get('CELERY', 'BROKER_HOST')
 BROKER_PORT = config.get('CELERY', 'BROKER_PORT')
 CELERY_BROKER_URL = 'redis://'+BROKER_HOST+':'+BROKER_PORT
-CELERY_RESULT_BACKEND = 'db+mysql://'+DB_ID+':'+DB_PASSWORD+'@'+DB_HOST+'/'+DB_NAME
+CELERY_RESULT_BACKEND = 'db+mysql://'+MYSQL_ID+':'+MYSQL_PASSWORD+'@'+MYSQL_HOST+'/'+MYSQL_NAME
 
 '''
     Etc Variable

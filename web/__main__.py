@@ -4,7 +4,7 @@ sys.path.insert(0, parent_dir)
 
 from flask import Flask
 from flask_registry import Registry, ExtensionRegistry
-from database import init_db
+from web.database import init_db
 import settings
 
 def create_app():

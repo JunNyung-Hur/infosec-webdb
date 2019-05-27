@@ -1,8 +1,8 @@
 from flask import request, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import login_required, current_user
-from database import db_session
-from database.models import Query
+from web.database import db_session
+from web.database.models import Query
 from sqlalchemy import desc
 import settings, os
 

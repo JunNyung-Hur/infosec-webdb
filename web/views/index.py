@@ -1,7 +1,7 @@
 from flask import request, render_template, url_for, Blueprint, Response, send_file, session
 from flask_login import current_user, login_required
-from database import db_session
-from database.models import Query
+from web.database import db_session
+from web.database.models import Query
 import json
 
 

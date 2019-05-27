@@ -1,7 +1,7 @@
 from flask import request, flash, abort, redirect, render_template, url_for, Blueprint, Response, session
 from flask_login import login_user, current_user, logout_user, login_required
-from database.models import User
-from database import db_session
+from web.database.models import User
+from web.database import db_session
 from flask_socketio import close_room
 auth_blueprint = Blueprint('auth', __name__)
 

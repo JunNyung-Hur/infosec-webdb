@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from database.models import User
+from web.database.models import User
 from web.auth.views import auth_blueprint
 
 def setup_app(app):
