@@ -30,7 +30,10 @@ def insert_virussign(db):
             )
         print(len(raw_file_docs))
         if len(raw_file_docs):
-            collection.insert_many(raw_file_docs)
+            try:
+                collection.insert_many(raw_file_docs, ordered=False)
+            except BulkWriteError:
+                print('except occur')
         print('finish', time.time()-start_time)
 
 
@@ -115,3 +118,4 @@ if __name__ == '__main__':
     db = init_db()
     insert_virussign(db)
     insert_virusshare(db)
+    insert_label(db)
