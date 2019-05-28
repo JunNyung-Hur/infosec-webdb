@@ -10,36 +10,32 @@ LABEL_DIR = r'/home/seclab_db/database/label/virussign'
 
 
 def insert_virussign(db):
-    collection = db.raw_file
+    #db.raw_files.remove({})
+
+    collection = db.raw_files
     for root, dirs, files in os.walk(VIRUSSIGN_PE_DIR):
         print(root)
         start_time = time.time()
+        raw_file_docs = list()
         for file in files:
             md5 = os.path.splitext(file)[0]
             path = os.path.join(root, file)
             virussign_collected_date = os.path.split(root)[1]
-            origin_doc = collection.find_one({'md5': md5 })
-            if not origin_doc:
-                collection.insert_one({
+            raw_file_docs.append(
+                {
                     "md5": md5,
                     "path": path,
                     'virussign_collected_date': virussign_collected_date
-                })
-            else:
-                if not 'virussign_collected_date' in origin_doc:
-                    collection.update_one(
-                        {"_id": origin_doc['_id']},
-                        {"$set":
-                            {
-                                'virussign_collected_date': virussign_collected_date
-                            }
-                        }
-                    )
+                }
+            )
+        print(len(raw_file_docs))
+        if len(raw_file_docs):
+            collection.insert_many(raw_file_docs)
         print('finish', time.time()-start_time)
 
 
 def insert_virusshare(db):
-    collection = db.raw_file
+    collection = db.raw_files
     for root, dirs, files in os.walk(VIRUSSHARE_PE_DIR):
         print(root)
         start_time = time.time()
@@ -99,7 +95,7 @@ def read_label_report(root, file):
 
 
 def insert_label(db):
-    collection = db.label
+    collection = db.labels
     for root, dirs, files in os.walk(LABEL_DIR):
         print(root)
         start_time = time.time()
@@ -117,3 +113,5 @@ def insert_label(db):
 
 if __name__ == '__main__':
     db = init_db()
+    insert_virussign(db)
+    insert_virusshare(db)
