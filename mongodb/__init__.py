@@ -1,6 +1,5 @@
 import pymongo
 import settings
-import re
 
 
 def init_db():
@@ -8,27 +7,15 @@ def init_db():
     db = connection.seclab_db
     return db
 
+def find_docs_by_md5_list(db, md5_list):
+    collection = db.raw_files
+    docs = collection.find({'md5': {'$in': md5_list}})
+    return docs
+
 
 if __name__ == '__main__':
     db = init_db()
-    db.raw_file.find(
-    )
-
-    pipeline = [
-        # {"$match": {"labels": {"$elemMatch": {'company': "Kaspersky", "result": {'$regex': re.compile('ransom', re.I)}}}}},
-        {"$match": {"labels": {"$elemMatch": {'company': "Kaspersky", "detected": True}}}},
-        {'$lookup':
-            {
-                'from': "label",
-                'localField': "md5",
-                'foreignField': "md5",
-                'as': "label_doc"
-            }
-        },
-        #{'$limit': 10},
-    ]
-
-    counter=1
-    for doc in db.label.aggregate(pipeline):
-        print(counter)
-        counter+=1
+    md5_list = ['fa0f33913d9f8f9c703957b978234210', 'f901bf0464c8ff868eb2d603932e04cb', 'f42ef58d30a49471c74495817799ae2b']
+    docs = find_docs_by_md5_list(db, md5_list)
+    for doc in docs:
+        print(doc)
